@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #7c3aed;
+  --brand-dark: #6d28d9;
+  --accent: #00d4aa;
+  --ink: #18181b;
+  --muted: #71717a;
+  --card: #fafafa;
+  --border: #e4e4e7;
+}
+
+body {
+  @apply bg-white text-ink-900 antialiased;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
+  }
+  .btn-secondary {
+    @apply btn border border-ink-200 bg-white text-ink-800 hover:bg-ink-50 focus:ring-ink-300;
+  }
+  .btn-ghost {
+    @apply btn text-ink-600 hover:bg-ink-100;
+  }
+  .card {
+    @apply rounded-2xl border border-ink-200 bg-white p-6 shadow-sm;
+  }
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink-700;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide;
+  }
+  .badge-proposed {
+    @apply badge bg-violet-100 text-violet-700;
+  }
+  .badge-provisional {
+    @apply badge bg-amber-100 text-amber-800;
+  }
+  .badge-active {
+    @apply badge bg-emerald-100 text-emerald-700;
+  }
+  .badge-checked_in {
+    @apply badge bg-teal-100 text-teal-700;
+  }
+  .badge-cancelled {
+    @apply badge bg-red-100 text-red-700;
+  }
+}

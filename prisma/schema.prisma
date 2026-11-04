@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  EVENT_MANAGER
+  REGISTRATION_STAFF
+  CHECKIN_STAFF
+}
+
+enum RegistrationStatus {
+  ACTIVE
+  CHECKED_IN
+  CANCELLED
+}
+
+enum SpeakerStatus {
+  PROPOSED
+  INVITED
+  CONFIRMED
+  DECLINED
+  PUBLISHED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         UserRole @default(REGISTRATION_STAFF)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  checkIns     CheckIn[]
+  auditLogs    AuditLog[]
+}
+
+model EventSettings {
+  id                String   @id @default(cuid())
+  eventName         String   @default("CREATORVERSE")
+  tagline           String   @default("Create. Connect. Collaborate.")
+  description       String   @default("A two-day creators and influencers convention focused on skills, personal branding, creator–brand opportunities and community.")
+  startDate         String   @default("To be announced")
+  endDate           String   @default("To be announced")
+  venueName         String   @default("Venue to be announced")
+  venueAddress      String   @default("India")
+  organizerName     String   @default("CREATORVERSE Team")
+  organizerEmail    String   @default("hello@creatorverse.in")
+  organizerPhone    String   @default("+91-XXXXXXXXXX")
+  registrationOpen  Boolean  @default(true)
+  primaryColor      String   @default("#7c3aed")
+  secondaryColor    String   @default("#00d4aa")
+  ticketPrices      Json     @default("{\"early_bird\":{\"name\":\"Early Bird\",\"price\":499,\"provisional\":true},\"standard\":{\"name\":\"Standard\",\"price\":799,\"provisional\":true},\"vip\":{\"name\":\"VIP Creator Pass\",\"price\":1499,\"provisional\":true}}")
+  agenda            Json     @default("[]")
+  privacyNotice     String   @default("We collect only information necessary for registration and event communication. Data is not sold. Contact us to request deletion.")
+  updatedAt         DateTime @updatedAt
+}
+
+model Registration {
+  id                String             @id @default(cuid())
+  registrationId    String             @unique
+  ticketNumber      String             @unique
+  verificationToken String             @unique
+  fullName          String
+  email             String
+  phone             String
+  ticketCategory    String
+  organization      String?
+  city              String?
+  status            RegistrationStatus @default(ACTIVE)
+  notes             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  checkedInAt       DateTime?
+  checkIns          CheckIn[]
+  emailLogs         EmailLog[]
+
+  @@index([email])
+  @@index([status])
+  @@index([ticketCategory])
+}
+
+model CheckIn {
+  id             String       @id @default(cuid())
+  registrationId String
+  registration   Registration @relation(fields: [registrationId], references: [id])
+  performedById  String?
+  performedBy    User?        @relation(fields: [performedById], references: [id])
+  performedAt    DateTime     @default(now())
+  notes          String?
+}
+
+model Speaker {
+  id          String        @id @default(cuid())
+  name        String
+  bio         String?
+  expertise   String?
+  socialLinks Json?
+  status      SpeakerStatus @default(PROPOSED)
+  published   Boolean       @default(false)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Spoc {
+  id           String   @id @default(cuid())
+  name         String
+  designation  String?
+  email        String?
+  phone        String?
+  whatsapp     String?
+  responsibility String?
+  category     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model EmailLog {
+  id             String        @id @default(cuid())
+  registrationId String?
+  registration   Registration? @relation(fields: [registrationId], references: [id])
+  toEmail        String
+  subject        String
+  status         String
+  providerId     String?
+  error          String?
+  createdAt      DateTime      @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String?
+  entityId  String?
+  details   Json?
+  createdAt DateTime @default(now())
+}
+
+model SetupState {
+  id        String   @id @default("setup")
+  completed Boolean  @default(false)
+  completedAt DateTime?
+}
